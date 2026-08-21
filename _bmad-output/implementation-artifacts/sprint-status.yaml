@@ -1,0 +1,67 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 08-21-2026 00:00
+last_updated: 08-21-2026 00:00
+project: ticket-busao
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+development_status:
+  epic-1: backlog
+  1-1-esqueleto-vivo-ambiente-sobe-com-um-comando-e-lista-rotas: backlog
+  1-2-buscar-viagens-por-origem-destino-e-data: backlog
+  1-3-ver-detalhes-de-uma-viagem-com-o-estado-dos-assentos: backlog
+  1-4-seed-completo-e-idempotente-com-casos-de-borda: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-visualizar-o-mapa-de-assentos: backlog
+  2-2-selecionar-um-assento-livre: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-validar-dados-do-passageiro-no-formulário: backlog
+  3-2-criar-reserva-e-emitir-código-de-reserva: backlog
+  3-3-impedir-reserva-de-assento-ocupado-sob-concorrência-real: backlog
+  3-4-impedir-reserva-de-viagem-realizada: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-consultar-reserva-pelo-código-de-reserva: backlog
+  4-2-cancelar-reserva-e-fazer-valer-a-janela-de-cancelamento: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-documentação-de-endpoints-via-swagger: backlog
+  5-2-pipeline-de-ci: backlog
+  5-3-readme-completo-e-execução-validada-sem-docker: backlog
+  5-4-evidência-visual-pontos-de-melhoria-e-submissão-da-entrega: backlog
+  epic-5-retrospective: optional
