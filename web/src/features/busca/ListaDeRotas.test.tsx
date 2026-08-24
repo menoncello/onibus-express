@@ -45,4 +45,32 @@ describe('ListaDeRotas', () => {
     expect(vazio).toBeTruthy()
     expect(screen.queryByRole('alert')).toBeNull()
   })
+
+  it('mostra estado de carregando antes do fetch resolver (AD-12)', async () => {
+    let resolverPromise: ((rotas: rotasApi.Rota[]) => void) | undefined
+    const promisePendente = new Promise<rotasApi.Rota[]>((resolve) => {
+      resolverPromise = resolve
+    })
+    vi.spyOn(rotasApi, 'getRotas').mockReturnValue(promisePendente)
+
+    render(<ListaDeRotas />)
+
+    expect(screen.getByRole('status').textContent).toBe('Carregando rotas…')
+
+    resolverPromise!([])
+    await screen.findByText(/nenhuma rota disponível/i)
+  })
+
+  it('formata duracao de hora exata e de sub-hora sem minutos/horas sobrando', async () => {
+    vi.spyOn(rotasApi, 'getRotas').mockResolvedValue([
+      { id: '1', origem: 'Curitiba', destino: 'Florianópolis', duracaoEstimadaMinutos: 60 },
+      { id: '2', origem: 'Recife', destino: 'Natal', duracaoEstimadaMinutos: 45 },
+    ])
+
+    render(<ListaDeRotas />)
+
+    await screen.findByText(/Curitiba/)
+    expect(screen.getByText('Curitiba → Florianópolis (1h)')).toBeTruthy()
+    expect(screen.getByText('Recife → Natal (45min)')).toBeTruthy()
+  })
 })

@@ -47,4 +47,21 @@ describe('getRotas (via cliente HTTP tipado)', () => {
     expect(erro).toBeInstanceOf(ApiRespostaInesperadaError)
     expect((erro as ApiRespostaInesperadaError).status).toBe(404)
   })
+
+  it('propaga falha de rede (fetch rejeitado) como erro de comunicacao', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(getRotas()).rejects.toBeInstanceOf(ApiComunicacaoError)
+  })
+
+  it('resolve um 200 com corpo JSON invalido para erro de comunicacao, nunca um SyntaxError cru', async () => {
+    stubFetch({
+      ok: true,
+      status: 200,
+      json: () => Promise.reject(new SyntaxError('Unexpected end of JSON input')),
+    })
+
+    await expect(getRotas()).rejects.toBeInstanceOf(ApiComunicacaoError)
+  })
 })

@@ -1,0 +1,16 @@
+{
+  "name": "ticket-busao-e2e",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@seontechnologies/playwright-utils": "4.4.0",
+    "@faker-js/faker": "10.6.0"
+  }
+}

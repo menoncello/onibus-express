@@ -107,4 +107,36 @@ public sealed class GetRotasTests : IAsyncLifetime
         Assert.Equal(origensOrdenadas, origens);
         Assert.Equal("Belo Horizonte", rotas[0].Origem);
     }
+
+    [Fact]
+    public async Task GetRotas_com_duracao_fracionaria_arredonda_para_o_minuto_mais_proximo_em_vez_de_truncar()
+    {
+        using (var scope = _factory!.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<OniBusDbContext>();
+
+            // 330 minutos e 40 segundos deve arredondar para 331 — nunca truncar para 330. Esta é
+            // uma regressão real, já corrigida uma vez (ver item 5 do Spec Change Log em
+            // spec-1-1-esqueleto-vivo-ambiente-sobe-com-um-comando-e-lista-rotas.md), que os dois
+            // testes acima nunca exercitaram porque só semeiam durações em minutos exatos.
+            db.Rotas.Add(new Rota
+            {
+                Id = Guid.NewGuid(),
+                Origem = "Curitiba",
+                Destino = "Florianópolis",
+                DuracaoEstimada = TimeSpan.FromMinutes(330) + TimeSpan.FromSeconds(40),
+            });
+
+            await db.SaveChangesAsync();
+        }
+
+        var client = _factory!.CreateClient();
+
+        var response = await client.GetAsync("/rotas");
+        var rotas = await response.Content.ReadFromJsonAsync<List<RotaResponse>>();
+
+        Assert.NotNull(rotas);
+        var rota = rotas!.Single(r => r.Origem == "Curitiba" && r.Destino == "Florianópolis");
+        Assert.Equal(331, rota.DuracaoEstimadaMinutos);
+    }
 }
