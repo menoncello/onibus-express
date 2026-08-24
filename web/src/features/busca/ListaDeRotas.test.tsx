@@ -15,11 +15,17 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+const criarRota = (overrides: Partial<rotasApi.Rota> = {}): rotasApi.Rota => ({
+  id: '1',
+  origem: 'São Paulo',
+  destino: 'Rio de Janeiro',
+  duracaoEstimadaMinutos: 330,
+  ...overrides,
+})
+
 describe('ListaDeRotas', () => {
   it('mostra a lista de rotas apos o carregamento com sucesso', async () => {
-    vi.spyOn(rotasApi, 'getRotas').mockResolvedValue([
-      { id: '1', origem: 'São Paulo', destino: 'Rio de Janeiro', duracaoEstimadaMinutos: 330 },
-    ])
+    vi.spyOn(rotasApi, 'getRotas').mockResolvedValue([criarRota()])
 
     render(<ListaDeRotas />)
 
@@ -63,8 +69,8 @@ describe('ListaDeRotas', () => {
 
   it('formata duracao de hora exata e de sub-hora sem minutos/horas sobrando', async () => {
     vi.spyOn(rotasApi, 'getRotas').mockResolvedValue([
-      { id: '1', origem: 'Curitiba', destino: 'Florianópolis', duracaoEstimadaMinutos: 60 },
-      { id: '2', origem: 'Recife', destino: 'Natal', duracaoEstimadaMinutos: 45 },
+      criarRota({ id: '1', origem: 'Curitiba', destino: 'Florianópolis', duracaoEstimadaMinutos: 60 }),
+      criarRota({ id: '2', origem: 'Recife', destino: 'Natal', duracaoEstimadaMinutos: 45 }),
     ])
 
     render(<ListaDeRotas />)

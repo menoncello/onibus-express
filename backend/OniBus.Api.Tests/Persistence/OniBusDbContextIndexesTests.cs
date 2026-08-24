@@ -61,6 +61,16 @@ public sealed class OniBusDbContextIndexesTests : IAsyncLifetime
         return viagem;
     }
 
+    private static Reserva CriarReserva(Guid viagemId, int numeroAssento, string codigo, StatusReserva status) =>
+        new()
+        {
+            Id = Guid.NewGuid(),
+            ViagemId = viagemId,
+            NumeroAssento = numeroAssento,
+            Codigo = codigo,
+            Status = status,
+        };
+
     [Fact]
     public async Task Rota_com_mesma_origem_e_destino_de_outra_ja_salva_viola_ux_rotas_origem_destino()
     {
@@ -92,26 +102,12 @@ public sealed class OniBusDbContextIndexesTests : IAsyncLifetime
         using var db = await CriarContextoMigradoAsync();
         var viagem = await SemearViagemAsync(db);
 
-        db.Reservas.Add(new Reserva
-        {
-            Id = Guid.NewGuid(),
-            ViagemId = viagem.Id,
-            NumeroAssento = 1,
-            Codigo = "AAA-00001",
-            Status = StatusReserva.Confirmada,
-        });
+        db.Reservas.Add(CriarReserva(viagem.Id, numeroAssento: 1, codigo: "AAA-00001", StatusReserva.Confirmada));
         await db.SaveChangesAsync();
 
         // Assento diferente do da primeira Reserva: se este teste falhar por causa do índice
         // errado (assento em vez de código), fica evidente ao investigar.
-        db.Reservas.Add(new Reserva
-        {
-            Id = Guid.NewGuid(),
-            ViagemId = viagem.Id,
-            NumeroAssento = 2,
-            Codigo = "AAA-00001",
-            Status = StatusReserva.Confirmada,
-        });
+        db.Reservas.Add(CriarReserva(viagem.Id, numeroAssento: 2, codigo: "AAA-00001", StatusReserva.Confirmada));
 
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
     }
@@ -122,26 +118,12 @@ public sealed class OniBusDbContextIndexesTests : IAsyncLifetime
         using var db = await CriarContextoMigradoAsync();
         var viagem = await SemearViagemAsync(db);
 
-        db.Reservas.Add(new Reserva
-        {
-            Id = Guid.NewGuid(),
-            ViagemId = viagem.Id,
-            NumeroAssento = 5,
-            Codigo = "BBB-00001",
-            Status = StatusReserva.Confirmada,
-        });
+        db.Reservas.Add(CriarReserva(viagem.Id, numeroAssento: 5, codigo: "BBB-00001", StatusReserva.Confirmada));
         await db.SaveChangesAsync();
 
         // Código diferente do da primeira Reserva: se este teste falhar por causa do índice
         // errado (código em vez de assento), fica evidente ao investigar.
-        db.Reservas.Add(new Reserva
-        {
-            Id = Guid.NewGuid(),
-            ViagemId = viagem.Id,
-            NumeroAssento = 5,
-            Codigo = "BBB-00002",
-            Status = StatusReserva.Confirmada,
-        });
+        db.Reservas.Add(CriarReserva(viagem.Id, numeroAssento: 5, codigo: "BBB-00002", StatusReserva.Confirmada));
 
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
     }
@@ -152,24 +134,10 @@ public sealed class OniBusDbContextIndexesTests : IAsyncLifetime
         using var db = await CriarContextoMigradoAsync();
         var viagem = await SemearViagemAsync(db);
 
-        db.Reservas.Add(new Reserva
-        {
-            Id = Guid.NewGuid(),
-            ViagemId = viagem.Id,
-            NumeroAssento = 7,
-            Codigo = "CCC-00001",
-            Status = StatusReserva.Confirmada,
-        });
+        db.Reservas.Add(CriarReserva(viagem.Id, numeroAssento: 7, codigo: "CCC-00001", StatusReserva.Confirmada));
         await db.SaveChangesAsync();
 
-        db.Reservas.Add(new Reserva
-        {
-            Id = Guid.NewGuid(),
-            ViagemId = viagem.Id,
-            NumeroAssento = 7,
-            Codigo = "CCC-00002",
-            Status = StatusReserva.Cancelada,
-        });
+        db.Reservas.Add(CriarReserva(viagem.Id, numeroAssento: 7, codigo: "CCC-00002", StatusReserva.Cancelada));
 
         // Não deve lançar: o índice único é parcial (HasFilter "status = 'Confirmada'"), então uma
         // Reserva Cancelada no mesmo assento não conflita com a Confirmada já existente.
