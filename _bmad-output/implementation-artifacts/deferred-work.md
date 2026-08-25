@@ -21,3 +21,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-1-esqueleto-vivo-ambiente-sobe-com-um-comando-e-lista-rotas.md`
   summary: Nenhum teste automatizado exercita a stack `nginx → api → db` completa via compose (proxy `/api`, strip de prefixo).
   evidence: Já verificado manualmente para esta story (`docker-compose up --build` + curl + checagem no browser); automação de ponta a ponta é natural em Epic 5 (CI).
+
+## Deferred from: code review of story-1-1-esqueleto-vivo-ambiente-sobe-com-um-comando-e-lista-rotas (2026-08-25)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-1-esqueleto-vivo-ambiente-sobe-com-um-comando-e-lista-rotas.md`
+  summary: Porta 80 fixa sem mecanismo de override, em `docker-compose.yml:45` (`'80:80'`) e reaproveitada pelo novo `scripts/verify-compose-boot.sh`.
+  evidence: Pré-existente ao diff desta revisão — `docker-compose.yml` já fixava a porta antes da remediação de gaps; mudar exigiria introduzir uma env var de porta, decisão de arquitetura fora do escopo desta revisão de código.

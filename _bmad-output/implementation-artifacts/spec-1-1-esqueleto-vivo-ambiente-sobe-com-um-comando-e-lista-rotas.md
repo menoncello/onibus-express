@@ -84,6 +84,21 @@ context: ['_bmad-output/implementation-artifacts/epic-1-context.md', '_bmad-outp
 - Given ao menos uma Rota semeada, when faço `GET /rotas`, then recebo `200` com origem, destino e duração estimada de cada rota
 - Given o frontend servido por Nginx, when acesso a página inicial, then vejo a lista de rotas carregada via `/api/rotas`, caminho relativo, sem URL absoluta
 
+### Review Findings
+
+Revisão de código (2026-08-25) sobre o diff de remediação de gaps do trace (2 arquivos modificados, 2 arquivos novos: `OniBusDbContextIndexesTests.cs`, `listar-rotas.spec.ts`, `OniBusDomainCsprojBoundaryTests.cs`, `scripts/verify-compose-boot.sh`).
+
+- [x] [Review][Patch] `verify-compose-boot.sh` não tem nenhum gatilho automatizado/descobrível — adicionar entrada no `package.json` [scripts/verify-compose-boot.sh:1]
+- [x] [Review][Patch] `OniBusDomainCsprojBoundaryTests` só verifica `PackageReference`/`ProjectReference`, não `Reference`/`FrameworkReference` [backend/OniBus.Domain.Tests/OniBusDomainCsprojBoundaryTests.cs:20]
+- [x] [Review][Patch] Mesmo teste não protege contra mudança do atributo `Sdk` do csproj [backend/OniBus.Domain.Tests/OniBusDomainCsprojBoundaryTests.cs:20]
+- [x] [Review][Patch] Teste de persistência de `StatusReserva` como string só cobre `Confirmada`, não `Cancelada` [backend/OniBus.Api.Tests/Persistence/OniBusDbContextIndexesTests.cs:132]
+- [x] [Review][Patch] Comentário do script cita `docker-compose` (v1) mas o comando executado é `docker compose` (v2) [scripts/verify-compose-boot.sh:28]
+- [x] [Review][Patch] `curl` sem timeout; com `set -e`, falha de conexão aborta antes da mensagem de erro própria do script imprimir [scripts/verify-compose-boot.sh:76]
+- [x] [Review][Patch] `docker compose down -v` no cleanup destrói o volume `db-data` sem aviso [scripts/verify-compose-boot.sh:22]
+- [x] [Review][Patch] Teste E2E de carregando usa atraso fixo de 500ms — risco de fragilidade de tempo sob CI lento [e2e/ui/listar-rotas.spec.ts:35]
+- [x] [Review][Patch] Título do teste E2E de carregando não tem a tag `(AD-12)` que os outros 3 testes do arquivo têm [e2e/ui/listar-rotas.spec.ts:35]
+- [x] [Review][Defer] Porta 80 fixa sem mecanismo de override, em `docker-compose.yml` e no script novo [docker-compose.yml:45] — deferred, pre-existing
+
 ## Spec Change Log
 
 - 2026-08-21: Implementação. O item "Ask First" sobre a estrutura do seed mínimo foi resolvido a favor da opção provisória e simples: `RotaSeed.SeedAsync` checa existência por chave natural (origem, destino) antes de inserir, sem construir a infraestrutura reutilizável de seed (múltiplas Rotas/Viagens, geração de Reservas via `IGeradorCodigoReserva`) que a Story 1.4 introduzirá. Ainda assim é idempotente por chave natural, não por contagem — sobrevive a um segundo `docker-compose up` sem duplicar. `Reserva` foi modelada com o mínimo que os dois índices únicos exigem (`ViagemId`, `NumeroAssento`, `Codigo`, `Status`); os campos de Passageiro inline (AD-5) ficam para a story que introduz `POST /reservas`. Nenhuma decisão de arquitetura (AD-1 a AD-17) foi violada ou renegociada.

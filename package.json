@@ -6,7 +6,8 @@
   "scripts": {
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "verify:compose-boot": "bash scripts/verify-compose-boot.sh"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",

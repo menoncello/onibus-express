@@ -128,6 +128,40 @@ public sealed class OniBusDbContextIndexesTests : IAsyncLifetime
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
     }
 
+    [Theory]
+    [InlineData(StatusReserva.Confirmada, "Confirmada")]
+    [InlineData(StatusReserva.Cancelada, "Cancelada")]
+    public async Task Reserva_persiste_status_como_texto_no_banco_nunca_como_inteiro(StatusReserva status, string literalEsperado)
+    {
+        using var db = await CriarContextoMigradoAsync();
+        var viagem = await SemearViagemAsync(db);
+        var codigo = $"EEE-{(int)status:00000}";
+
+        db.Reservas.Add(CriarReserva(viagem.Id, numeroAssento: 9, codigo, status));
+        await db.SaveChangesAsync();
+
+        var connection = db.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open)
+        {
+            await connection.OpenAsync();
+        }
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT status FROM reservas WHERE codigo = @codigo";
+        var parametro = command.CreateParameter();
+        parametro.ParameterName = "codigo";
+        parametro.Value = codigo;
+        command.Parameters.Add(parametro);
+        var statusPersistido = await command.ExecuteScalarAsync();
+
+        // Se StatusReserva fosse persistido pela ordinal do enum (int) em vez de
+        // HasConversion<string>(), os valores lidos seriam "0"/"1", não os literais 'Confirmada'/
+        // 'Cancelada' — o índice único parcial ux_reservas_viagem_assento_confirmada cita
+        // 'Confirmada' no seu filtro (AD-6), e ambos os membros do enum passam pelo mesmo
+        // conversor, então os dois precisam ser verificados.
+        Assert.Equal(literalEsperado, statusPersistido);
+    }
+
     [Fact]
     public async Task Reserva_cancelada_com_mesmo_assento_de_outra_confirmada_nao_viola_indice_parcial()
     {
