@@ -93,6 +93,7 @@ UX-DR7: Funções únicas de formatação de preço (`Intl.NumberFormat` pt-BR/B
 ### FR Coverage Map
 
 FR-1: Epic 1 - Listar Rotas disponíveis (popula campos de busca)
+
 FR-2: Epic 1 - Buscar Viagens por origem, destino e data (estados de carregando/resultados/vazio)
 FR-3: Epic 1 - Detalhar Viagem com estado dos Assentos
 FR-14: Epic 1 - Semear Rotas e Viagens ao iniciar (idempotente, datas relativas)
